@@ -4,7 +4,8 @@ const weatherApiUrl =
   "https://api.openweathermap.org/data/2.5/weather?units=metric";
 const forecastApiUrl =
   "https://api.openweathermap.org/data/2.5/forecast?units=metric";
-const airQualityApiUrl = "http://api.openweathermap.org/data/2.5/air_pollution";
+const airQualityApiUrl =
+  "https://api.openweathermap.org/data/2.5/air_pollution"; // Changed to HTTPS
 
 // DOM Elements
 const cityInput = document.getElementById("cityInput");
@@ -55,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSavedLocations();
 });
 
-// Core Functions (Weather, AQI, UI Setup, etc.)
+// Core Functions
 function addSVGGradient() {
   const svg = document.querySelector(".aqi-gauge svg");
   if (!svg) return;
@@ -90,31 +91,50 @@ function addSVGGradient() {
 async function getAirQuality(lat, lon) {
   try {
     const url = `${airQualityApiUrl}?lat=${lat}&lon=${lon}&appid=${weatherApiKey}`;
+    console.log("Fetching AQI from:", url); // Debug log
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Air quality API error");
+    if (!response.ok) {
+      throw new Error(
+        `Air quality API error: ${response.status} - ${response.statusText}`
+      );
+    }
     const data = await response.json();
-    if (!data.list || data.list.length === 0)
-      throw new Error("No air quality data");
+    if (
+      !data.list ||
+      data.list.length === 0 ||
+      !data.list[0].main ||
+      typeof data.list[0].main.aqi !== "number"
+    ) {
+      throw new Error("No valid air quality data returned");
+    }
+    console.log("AQI data:", data); // Debug log
     updateAirQualityUI(data.list[0]);
   } catch (error) {
     console.error("Air quality fetch error:", error.message);
-    updateAirQualityUI({ main: { aqi: "N/A" } });
+    updateAirQualityUI(null); // Trigger "N/A" display
   }
 }
 
 function updateAirQualityUI(airData) {
-  const aqi = airData.main.aqi === "N/A" ? "N/A" : airData.main.aqi;
-  aqiNumber.textContent = aqi;
+  const isValidAqi =
+    airData && airData.main && typeof airData.main.aqi === "number";
+  const rawAqi = isValidAqi ? airData.main.aqi : null;
+  const displayAqi = rawAqi ? Math.round((rawAqi - 1) * 50) : "N/A"; // Map 1-5 to 0-200
 
-  if (aqi !== "N/A") {
-    const aqiInfo = getAQIInfo(aqi);
+  aqiNumber.textContent = displayAqi;
+
+  if (displayAqi !== "N/A") {
+    const aqiInfo = getAQIInfo(rawAqi); // Use raw 1-5 for status
     aqiStatus.textContent = aqiInfo.status;
     aqiStatus.style.color = aqiInfo.color;
     aqiDescription.textContent = aqiInfo.description;
+
     const gaugeFill = document.querySelector(".gauge-fill");
     if (gaugeFill) {
-      const circumference = 2 * Math.PI * 54;
-      const offset = circumference - (circumference * aqi) / 5;
+      const circumference = 2 * Math.PI * 54; // Adjust radius if needed
+      const maxAqi = 200;
+      const offset =
+        circumference - (circumference * Math.min(displayAqi, maxAqi)) / maxAqi;
       gaugeFill.style.strokeDasharray = `${circumference}`;
       gaugeFill.style.strokeDashoffset = `${offset}`;
     }
@@ -123,8 +143,42 @@ function updateAirQualityUI(airData) {
     aqiStatus.style.color = "#ffffff";
     aqiDescription.textContent = "Unable to retrieve air quality data.";
     const gaugeFill = document.querySelector(".gauge-fill");
-    if (gaugeFill) gaugeFill.style.strokeDashoffset = "339.292";
+    if (gaugeFill) {
+      gaugeFill.style.strokeDasharray = `${2 * Math.PI * 54}`;
+      gaugeFill.style.strokeDashoffset = `${2 * Math.PI * 54}`; // Full offset for "N/A"
+    }
   }
+}
+
+function getAQIInfo(aqi) {
+  const aqiData = [
+    {
+      status: "Good",
+      color: "#4cc9f0",
+      description: "Air quality is satisfactory...",
+    },
+    {
+      status: "Fair",
+      color: "#4361ee",
+      description: "Air quality is acceptable...",
+    },
+    {
+      status: "Moderate",
+      color: "#3a0ca3",
+      description: "Sensitive groups may...",
+    },
+    {
+      status: "Poor",
+      color: "#7209b7",
+      description: "Health effects possible...",
+    },
+    {
+      status: "Very Poor",
+      color: "#f72585",
+      description: "Serious health risks...",
+    },
+  ];
+  return aqiData[aqi - 1] || aqiData[0];
 }
 
 function initAutocomplete() {
@@ -250,10 +304,10 @@ async function checkWeather(city) {
     updateWeatherUI(data);
     getForecast(data.coord.lat, data.coord.lon);
     getAirQuality(data.coord.lat, data.coord.lon);
-    getNews(data.name); // From news.js
+    getNews(data.name); // Assumes news.js
     updateViewingCity(data.name);
-    getActivities(data.name); // From activities.js
-    getHotels(data.name); // From hotels.js
+    getActivities(data.name); // Assumes activities.js
+    getHotels(data.name); // Assumes hotels.js
     checkWeatherAlerts(data);
     cityInput.value = "";
     hideLoading();
@@ -276,10 +330,10 @@ async function checkWeatherByCoords(lat, lon) {
     updateWeatherUI(data);
     getForecast(lat, lon);
     getAirQuality(lat, lon);
-    getNews(data.name); // From news.js
+    getNews(data.name); // Assumes news.js
     updateViewingCity(data.name);
-    getActivities(data.name); // From activities.js
-    getHotels(data.name); // From hotels.js
+    getActivities(data.name); // Assumes activities.js
+    getHotels(data.name); // Assumes hotels.js
     checkWeatherAlerts(data);
     cityInput.value = "";
     hideLoading();
@@ -413,37 +467,6 @@ function updateUnitDisplay() {
   }
 }
 
-function getAQIInfo(aqi) {
-  const aqiData = [
-    {
-      status: "Good",
-      color: "#4cc9f0",
-      description: "Air quality is satisfactory...",
-    },
-    {
-      status: "Fair",
-      color: "#4361ee",
-      description: "Air quality is acceptable...",
-    },
-    {
-      status: "Moderate",
-      color: "#3a0ca3",
-      description: "Sensitive groups may...",
-    },
-    {
-      status: "Poor",
-      color: "#7209b7",
-      description: "Health effects possible...",
-    },
-    {
-      status: "Very Poor",
-      color: "#f72585",
-      description: "Serious health risks...",
-    },
-  ];
-  return aqiData[aqi - 1] || aqiData[0];
-}
-
 function generateWeatherReport(weatherData) {
   const report = `
 Weather Report for ${weatherData.name}, ${weatherData.sys.country}
@@ -544,13 +567,12 @@ function saveLocation(weatherData) {
   };
   savedLocations.push(newLocation);
   localStorage.setItem("savedLocations", JSON.stringify(savedLocations));
-  // Additional UI logic for saved locations (omitted for brevity, see original)
 }
 
 function loadSavedLocations() {
   const savedLocations =
     JSON.parse(localStorage.getItem("savedLocations")) || [];
-  // UI logic for loading saved locations (omitted for brevity, see original)
+  // Add UI logic here if needed (omitted for brevity)
 }
 
 function toggleMode() {
