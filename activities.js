@@ -1,5 +1,7 @@
 const geoapifyApiKey = "fc54a5144b00401088bcde5b7fd2b9eb"; // Replace with your Geoapify API key
+const pexelsApiKey = "d4G3jdOaLNjowMn2zZA9saCVFPFGKqIGbzpqiRjnGNxg9mBXxLh45k9Z"; // Replace with your Pexels API key from pexels.com/api
 const geoapifyApiUrl = "https://api.geoapify.com/v2/places";
+const pexelsApiUrl = "https://api.pexels.com/v1/search";
 
 async function getActivities(city) {
   try {
@@ -15,42 +17,48 @@ async function getActivities(city) {
       </div>
     `;
 
-    // Fetch places (activities) for the city
-    const url = `${geoapifyApiUrl}?categories=tourism.attraction,entertainment&filter=place:${await getCityPlaceId(
+    // Fetch places (activities) for the city from Geoapify
+    const geoUrl = `${geoapifyApiUrl}?categories=tourism.attraction,entertainment&filter=place:${await getCityPlaceId(
       city
     )}&limit=4&apiKey=${geoapifyApiKey}`;
-    const response = await fetch(url);
+    const geoResponse = await fetch(geoUrl);
 
-    if (!response.ok) {
+    if (!geoResponse.ok) {
       throw new Error(
-        `Geoapify API error: ${response.status} - ${response.statusText}`
+        `Geoapify API error: ${geoResponse.status} - ${geoResponse.statusText}`
       );
     }
 
-    const data = await response.json();
-    if (!data.features || data.features.length === 0) {
+    const geoData = await geoResponse.json();
+    if (!geoData.features || geoData.features.length === 0) {
       throw new Error("No activities found for this location.");
     }
 
-    // Format the data to match your UI structure
-    const activities = data.features.map((feature, index) => {
-      const category = feature.properties.category || "activity";
-      const lat = feature.geometry.coordinates[1]; // Latitude
-      const lon = feature.geometry.coordinates[0]; // Longitude
+    // Format the data and fetch images from Pexels
+    const activities = await Promise.all(
+      geoData.features.map(async (feature, index) => {
+        const category = feature.properties.category || "activity";
+        const lat = feature.geometry.coordinates[1]; // Latitude
+        const lon = feature.geometry.coordinates[0]; // Longitude
+        const activityName = feature.properties.name || "tourism"; // Use name for image search, fallback to "tourism"
 
-      return {
-        id: `activity${index + 1}`,
-        name: feature.properties.name || "Unnamed Activity",
-        type: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize category
-        description: feature.properties.address_line2
-          ? `Located at ${feature.properties.address_line2}.`
-          : `Explore this point of interest in ${city}.`,
-        image: "https://source.unsplash.com/600x400/?tourism", // Simplified, reliable Unsplash URL
-        url: `https://www.google.com/maps/search/?api=1&query=${lat},${lon}&query_place_id=${
-          feature.properties.place_id || ""
-        }`, // Google Maps link
-      };
-    });
+        // Fetch image from Pexels based on activity name
+        const imageUrl = await getPexelsImage(activityName);
+
+        return {
+          id: `activity${index + 1}`,
+          name: feature.properties.name || "Unnamed Activity",
+          type: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize category
+          description: feature.properties.address_line2
+            ? `Located at ${feature.properties.address_line2}.`
+            : `Explore this point of interest in ${city}.`,
+          image: imageUrl, // Dynamic Pexels image
+          url: `https://www.google.com/maps/search/?api=1&query=${lat},${lon}&query_place_id=${
+            feature.properties.place_id || ""
+          }`, // Google Maps link
+        };
+      })
+    );
 
     updateActivitiesUI(activities);
   } catch (error) {
@@ -77,6 +85,38 @@ async function getCityPlaceId(city) {
   return data.features[0].properties.place_id; // Returns OSM place ID
 }
 
+// Helper function to fetch an image from Pexels
+async function getPexelsImage(query) {
+  try {
+    const response = await fetch(
+      `${pexelsApiUrl}?query=${encodeURIComponent(query)}&per_page=1`,
+      {
+        headers: {
+          Authorization: pexelsApiKey,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.warn(
+        `Pexels API error: ${response.status} - ${response.statusText}, using fallback`
+      );
+      return "https://via.placeholder.com/600x400.png?text=No+Image+Available"; // Fallback if Pexels fails
+    }
+
+    const data = await response.json();
+    if (data.photos && data.photos.length > 0) {
+      return data.photos[0].src.large; // Use the large image size (adjustable)
+    } else {
+      console.warn(`No Pexels image found for query: ${query}`);
+      return "https://via.placeholder.com/600x400.png?text=No+Image+Available"; // Fallback if no image
+    }
+  } catch (error) {
+    console.warn(`Pexels image fetch failed: ${error.message}`);
+    return "https://via.placeholder.com/600x400.png?text=No+Image+Available"; // Fallback on error
+  }
+}
+
 function updateActivitiesUI(activities) {
   const activitiesContainer = document.getElementById("activitiesContainer");
   if (!activitiesContainer) return;
@@ -93,8 +133,7 @@ function updateActivitiesUI(activities) {
     const activityItem = document.createElement("div");
     activityItem.className = "activity-item";
     activityItem.innerHTML = `
-      <img src="${activity.image}" class="activity-image" alt="${activity.name}" 
-           onerror="console.log('Image failed: ${activity.image}'); this.src='/images/activity-placeholder.jpg';">
+      <img src="${activity.image}" class="activity-image" alt="${activity.name}">
       <div class="activity-content">
         <h4 class="activity-name">${activity.name}</h4>
         <span class="activity-type">${activity.type}</span>
