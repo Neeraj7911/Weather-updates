@@ -1022,7 +1022,7 @@ main {
 
 .hotel-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* Three columns by default */
   gap: 20px;
 }
 
@@ -1868,6 +1868,12 @@ footer {
 }
 
 /* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .hotel-container {
+    grid-template-columns: repeat(2, 1fr); /* Two columns on medium screens */
+  }
+}
+
 @media (max-width: 768px) {
   header {
     flex-direction: column;
@@ -1896,6 +1902,10 @@ footer {
 
   .share-options {
     grid-template-columns: 1fr;
+  }
+
+  .hotel-container {
+    grid-template-columns: 1fr; /* One column on small screens */
   }
 }
 

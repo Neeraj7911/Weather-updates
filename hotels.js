@@ -1,4 +1,3 @@
-// hotel.js
 const GEOAPIFY_API_KEY = "fc54a5144b00401088bcde5b7fd2b9eb";
 const PEXELS_API_KEY =
   "d4G3jdOaLNjowMn2zZA9saCVFPFGKqIGbzpqiRjnGNxg9mBXxLh45k9Z";
@@ -103,10 +102,6 @@ function updateHotelsUI(hotels) {
     return;
   }
 
-  const hotelResults = document.createElement("div");
-  hotelResults.className = "hotel-results";
-  hotelResults.style.display = "block";
-
   hotels.forEach((hotel) => {
     const hotelItem = document.createElement("div");
     hotelItem.className = "hotel-item";
@@ -161,17 +156,14 @@ function updateHotelsUI(hotels) {
       </div>
     `;
 
-    hotelResults.appendChild(hotelItem);
+    hotelContainer.appendChild(hotelItem);
   });
-
-  hotelContainer.appendChild(hotelResults);
 
   // Add event listeners to all "Book Now" buttons
   document.querySelectorAll(".book-now").forEach((button) => {
     button.addEventListener("click", () => {
       const name = button.getAttribute("data-name");
       const city = button.getAttribute("data-city");
-      // Redirect to Google Maps with hotel name and city search
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${name}+${city}`;
       window.open(googleMapsUrl, "_blank");
     });
