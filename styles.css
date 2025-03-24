@@ -1482,6 +1482,47 @@ main {
   color: var(--text-light);
   padding: 20px;
 }
+.saved-location {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.saved-location .load-location {
+  background-color: #4cc9f0; /* Light blue, matching AQI "Good" color */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.saved-location .load-location:hover {
+  background-color: #4361ee; /* Darker blue for hover effect */
+}
+
+.saved-location .remove-location {
+  background-color: #f72585; /* Pinkish-red, matching AQI "Very Poor" color */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.saved-location .remove-location:hover {
+  background-color: #b7094c; /* Darker red for hover effect */
+}
+.remove-location {
+  background-color: #4cc9f0; /* Light blue, matching AQI "Good" color */
+  color: white;
+}
 
 /* Footer Styles */
 footer {

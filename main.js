@@ -5,7 +5,7 @@ const weatherApiUrl =
 const forecastApiUrl =
   "https://api.openweathermap.org/data/2.5/forecast?units=metric";
 const airQualityApiUrl =
-  "https://api.openweathermap.org/data/2.5/air_pollution"; // Changed to HTTPS
+  "https://api.openweathermap.org/data/2.5/air_pollution";
 
 // DOM Elements
 const cityInput = document.getElementById("cityInput");
@@ -54,6 +54,13 @@ document.addEventListener("DOMContentLoaded", () => {
   addSVGGradient();
   loadSavedTheme();
   loadSavedLocations();
+
+  // Handle shared city from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedCity = urlParams.get("city");
+  if (sharedCity) {
+    checkWeather(sharedCity);
+  }
 });
 
 // Core Functions
@@ -91,7 +98,7 @@ function addSVGGradient() {
 async function getAirQuality(lat, lon) {
   try {
     const url = `${airQualityApiUrl}?lat=${lat}&lon=${lon}&appid=${weatherApiKey}`;
-    console.log("Fetching AQI from:", url); // Debug log
+    console.log("Fetching AQI from:", url);
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(
@@ -107,11 +114,11 @@ async function getAirQuality(lat, lon) {
     ) {
       throw new Error("No valid air quality data returned");
     }
-    console.log("AQI data:", data); // Debug log
+    console.log("AQI data:", data);
     updateAirQualityUI(data.list[0]);
   } catch (error) {
     console.error("Air quality fetch error:", error.message);
-    updateAirQualityUI(null); // Trigger "N/A" display
+    updateAirQualityUI(null);
   }
 }
 
@@ -124,14 +131,14 @@ function updateAirQualityUI(airData) {
   aqiNumber.textContent = displayAqi;
 
   if (displayAqi !== "N/A") {
-    const aqiInfo = getAQIInfo(rawAqi); // Use raw 1-5 for status
+    const aqiInfo = getAQIInfo(rawAqi);
     aqiStatus.textContent = aqiInfo.status;
     aqiStatus.style.color = aqiInfo.color;
     aqiDescription.textContent = aqiInfo.description;
 
     const gaugeFill = document.querySelector(".gauge-fill");
     if (gaugeFill) {
-      const circumference = 2 * Math.PI * 54; // Adjust radius if needed
+      const circumference = 2 * Math.PI * 54;
       const maxAqi = 200;
       const offset =
         circumference - (circumference * Math.min(displayAqi, maxAqi)) / maxAqi;
@@ -145,7 +152,7 @@ function updateAirQualityUI(airData) {
     const gaugeFill = document.querySelector(".gauge-fill");
     if (gaugeFill) {
       gaugeFill.style.strokeDasharray = `${2 * Math.PI * 54}`;
-      gaugeFill.style.strokeDashoffset = `${2 * Math.PI * 54}`; // Full offset for "N/A"
+      gaugeFill.style.strokeDashoffset = `${2 * Math.PI * 54}`;
     }
   }
 }
@@ -485,7 +492,7 @@ Coordinates:
 Sunrise: ${new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}
 Sunset: ${new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}
 Report provided by WeatherNow App
-Visit us at: https://neeraj7911.github.io
+Visit us at: https://neeraj7911.github.io/Weather-updates/
   `;
   const blob = new Blob([report], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
@@ -547,7 +554,7 @@ function openShareModal(city) {
   const shareCity = document.getElementById("shareCity");
   const shareLink = document.getElementById("shareLink");
   shareCity.textContent = city;
-  shareLink.value = `https://neeraj7911.github.io/share?city=${encodeURIComponent(
+  shareLink.value = `https://neeraj7911.github.io/Weather-updates/?city=${encodeURIComponent(
     city
   )}`;
   shareModal.style.display = "flex";
@@ -567,12 +574,100 @@ function saveLocation(weatherData) {
   };
   savedLocations.push(newLocation);
   localStorage.setItem("savedLocations", JSON.stringify(savedLocations));
+  renderSavedLocations(); // Update UI after saving
+  showError("Location saved successfully!"); // Feedback
 }
 
 function loadSavedLocations() {
   const savedLocations =
     JSON.parse(localStorage.getItem("savedLocations")) || [];
-  // Add UI logic here if needed (omitted for brevity)
+  renderSavedLocations(savedLocations);
+}
+
+function renderSavedLocations(
+  locations = JSON.parse(localStorage.getItem("savedLocations")) || []
+) {
+  savedLocationsContainer.innerHTML = "";
+  if (locations.length === 0) {
+    savedLocationsContainer.innerHTML = "<p>No saved locations yet.</p>";
+    return;
+  }
+  locations.forEach((location) => {
+    const locationDiv = document.createElement("div");
+    locationDiv.className = "saved-location";
+    locationDiv.innerHTML = `
+      <span>${location.name} (${formatTemperature(location.temp)}) - ${
+      location.weather
+    }</span>
+      <small>${location.time}</small>
+      <button class="load-location">Load</button>
+      <button class="remove-location">Remove</button>
+    `;
+    // Load button functionality
+    locationDiv
+      .querySelector(".load-location")
+      .addEventListener("click", () => {
+        checkWeather(location.name);
+      });
+    // Remove button functionality
+    locationDiv
+      .querySelector(".remove-location")
+      .addEventListener("click", () => {
+        const updatedLocations = locations.filter(
+          (loc) => loc.name !== location.name
+        );
+        localStorage.setItem(
+          "savedLocations",
+          JSON.stringify(updatedLocations)
+        );
+        renderSavedLocations(updatedLocations); // Re-render after removal
+      });
+    savedLocationsContainer.appendChild(locationDiv);
+  });
+}
+
+function loadSavedLocations() {
+  const savedLocations =
+    JSON.parse(localStorage.getItem("savedLocations")) || [];
+  renderSavedLocations(savedLocations);
+}
+
+function renderSavedLocations(
+  locations = JSON.parse(localStorage.getItem("savedLocations")) || []
+) {
+  savedLocationsContainer.innerHTML = "";
+  if (locations.length === 0) {
+    savedLocationsContainer.innerHTML = "<p>No saved locations yet.</p>";
+    return;
+  }
+  locations.forEach((location) => {
+    const locationDiv = document.createElement("div");
+    locationDiv.className = "saved-location";
+    locationDiv.innerHTML = `
+      <span>${location.name} (${formatTemperature(location.temp)}) - ${
+      location.weather
+    }</span>
+      <small>${location.time}</small>
+      <button class="load-location">Load</button>
+      <button class="remove-location">Remove</button>
+    `;
+    locationDiv
+      .querySelector(".load-location")
+      .addEventListener("click", () => checkWeather(location.name));
+    locationDiv
+      .querySelector(".remove-location")
+      .addEventListener("click", () => {
+        const updatedLocations = locations.filter(
+          (loc) => loc.name !== location.name
+        );
+        localStorage.setItem(
+          "savedLocations",
+          JSON.stringify(updatedLocations)
+        );
+        renderSavedLocations(updatedLocations);
+      });
+    savedLocationsContainer.appendChild(locationDiv);
+  });
 }
 
 function toggleMode() {
