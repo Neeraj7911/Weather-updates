@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="WeatherNow - Best weather app 2025 for real-time weather updates, 5-day forecasts, hotel recommendations, local news, and air quality index. Install this free weather app now!"
+    />
+    <meta
+      name="keywords"
+      content="best weather app 2025, real-time weather app, weather forecast app, weather app with hotel recommendations, local news weather app, air quality index app, free weather app download"
+    />
+    <meta name="theme-color" content="#4361ee" />
+    <!-- Added Open Graph and Twitter Card Tags for SEO -->
+    <meta property="og:title" content="WeatherNow - Best Weather App 2025" />
+    <meta
+      property="og:description"
+      content="Get real-time weather updates, forecasts, and local information."
+    />
+    <meta property="og:image" content="images/icon-192x192.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>
+      WeatherNow - Best Weather App 2025 | Real-Time Forecast, Hotels & News
+    </title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="images/icon-192x192.png" />
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="background">
+      <div class="gradient-sphere sphere-1"></div>
+      <div class="gradient-sphere sphere-2"></div>
+      <div class="gradient-sphere sphere-3"></div>
+      <div class="grid-overlay"></div>
+    </div>
+    <!-- App Install Banner -->
+    <div class="app-install-banner" id="appInstallBanner">
+      <div class="install-content">
+        <img
+          src="images/icon-192x192.png"
+          alt="WeatherNow App Icon"
+          class="app-icon"
+        />
+        <div class="install-text">
+          <h3>WeatherNow App</h3>
+          <p>Install our app for a better experience</p>
+        </div>
+      </div>
+      <div class="install-actions">
+        <button id="installApp">Install</button>
+        <button
+          id="dismissInstall"
+          class="icon-button"
+          aria-label="Dismiss Install Prompt"
+        >
+          <span class="icon close-icon"></span>
+        </button>
+      </div>
+    </div>
+    <!-- PWA Install Guide -->
+    <div class="modal" id="pwaGuideModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Install WeatherNow App</h3>
+          <button
+            class="close-modal"
+            id="closePwaGuide"
+            aria-label="Close Modal"
+          >
+            <span class="icon close-modal-icon"></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="device-tabs">
+            <button
+              class="device-tab active"
+              data-device="android"
+              aria-label="Android Installation Instructions"
+            >
+              Android
+            </button>
+            <button
+              class="device-tab"
+              data-device="ios"
+              aria-label="iOS Installation Instructions"
+            >
+              iOS
+            </button>
+            <button
+              class="device-tab"
+              data-device="desktop"
+              aria-label="Desktop Installation Instructions"
+            >
+              Desktop
+            </button>
+          </div>
+          <div class="device-instructions" id="androidInstructions">
+            <h4>Install on Android</h4>
+            <ol>
+              <li>
+                Tap the menu icon <span class="icon menu-icon"></span> in Chrome
+              </li>
+              <li>Select "Install App" or "Add to Home Screen"</li>
+              <li>Follow the on-screen instructions</li>
+            </ol>
+            <div class="instruction-image">
+              <img
+                src="images/android-install.png"
+                alt="Step-by-step guide for installing WeatherNow on Android devices"
+              />
+            </div>
+          </div>
+          <div
+            class="device-instructions"
+            id="iosInstructions"
+            style="display: none"
+          >
+            <h4>Install on iOS</h4>
+            <ol>
+              <li>
+                Tap the share icon <span class="icon share-icon"></span> in
+                Safari
+              </li>
+              <li>Scroll down and select "Add to Home Screen"</li>
+              <li>Tap "Add" in the top-right corner</li>
+            </ol>
+            <div class="instruction-image">
+              <img
+                src="images/ios-install.png"
+                alt="Step-by-step guide for installing WeatherNow on iOS devices"
+              />
+            </div>
+          </div>
+          <div
+            class="device-instructions"
+            id="desktopInstructions"
+            style="display: none"
+          >
+            <h4>Install on Desktop</h4>
+            <ol>
+              <li>
+                Click the install icon
+                <span class="icon install-icon"></span> in the address bar
+              </li>
+              <li>Click "Install" in the prompt that appears</li>
+            </ol>
+            <div class="instruction-image">
+              <img
+                src="images/desktop-install.png"
+                alt="Step-by-step guide for installing WeatherNow on desktop browsers"
+              />
+            </div>
+          </div>
+          <div class="pwa-benefits">
+            <h4>Benefits of Installing the App</h4>
+            <ul>
+              <li>Faster access to weather updates</li>
+              <li>Works offline with cached data</li>
+              <li>Receive weather alerts as notifications</li>
+              <li>No app store download required</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <!-- Header Section -->
+      <header>
+        <div class="logo">
+          <div class="hologram-container">
+            <div class="hologram-ring"></div>
+            <div class="hologram-ring"></div>
+            <div class="hologram-ring"></div>
+            <span class="icon weather-logo-icon"></span>
+          </div>
+          <h1>WeatherNow<span class="version">2.5</span></h1>
+        </div>
+        <div class="search-container">
+          <div class="search">
+            <input
+              type="text"
+              placeholder="Search for a city..."
+              spellcheck="false"
+              id="cityInput"
+              aria-label="Search for a city"
+            />
+            <button id="searchBtn" aria-label="Search for weather">
+              <span class="icon search-icon"></span>
+            </button>
+          </div>
+          <button
+            id="currentLocationBtn"
+            title="Use current location"
+            aria-label="Use current location"
+          >
+            <span class="icon location-icon"></span>
+          </button>
+        </div>
+        <div class="mode-toggle">
+          <button
+            id="modeToggle"
+            class="icon-button"
+            title="Toggle Mode"
+            aria-label="Toggle Dark/Light Mode"
+          >
+            <span class="icon mode-icon"></span>
+          </button>
+        </div>
+      </header>
+      <!-- Live Users Counter -->
+      <div class="live-users-counter">
+        <div class="pulse-dot"></div>
+        <span id="userCount">53</span> people viewing weather in
+        <span id="viewingCity">your area</span>
+      </div>
+      <!-- Install App Button -->
+      <div
+        class="install-app-button"
+        id="installAppButton"
+        role="button"
+        tabindex="0"
+      >
+        <span class="icon download-icon"></span>
+        <span>Install WeatherNow App</span>
+      </div>
+      <!-- Main Content -->
+      <main>
+        <!-- Current Weather Card -->
+        <section class="weather-card">
+          <div class="weather-header">
+            <div class="location">
+              <h2 class="city">New Delhi</h2>
+              <p class="date">Wednesday, March 19</p>
+            </div>
+            <div class="weather-toggle">
+              <button
+                class="active"
+                data-unit="celsius"
+                aria-label="Switch to Celsius"
+              >
+                °C
+              </button>
+              <button data-unit="fahrenheit" aria-label="Switch to Fahrenheit">
+                °F
+              </button>
+            </div>
+          </div>
+          <div class="current-weather">
+            <div class="weather-icon-container">
+              <img src="clouds.png" class="weather-icon" alt="Clear Sky Icon" />
+              <p class="weather-description">Clear Sky</p>
+            </div>
+            <div class="temp-container">
+              <h1 class="temp">22°</h1>
+              <div class="feels-like">
+                <span>Feels like:</span>
+                <span class="feels-like-temp">24°</span>
+              </div>
+            </div>
+          </div>
+          <div class="weather-details">
+            <div class="detail-item">
+              <span class="icon humidity-icon"></span>
+              <div>
+                <p class="humidity">50%</p>
+                <p>Humidity</p>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon wind-icon"></span>
+              <div>
+                <p class="wind">15 km/h</p>
+                <p>Wind</p>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon pressure-icon"></span>
+              <div>
+                <p class="pressure">1015 hPa</p>
+                <p>Pressure</p>
+              </div>
+            </div>
+            <div class="detail-item">
+              <span class="icon visibility-icon"></span>
+              <div>
+                <p class="visibility">10 km</p>
+                <p>Visibility</p>
+              </div>
+            </div>
+          </div>
+          <div class="weather-alerts" id="weatherAlerts"></div>
+        </section>
+        <!-- Forecast Section -->
+        <section class="forecast-section">
+          <h3>5-Day Forecast</h3>
+          <div class="forecast-container" id="forecastContainer"></div>
+        </section>
+        <!-- Air Quality Section -->
+        <section class="air-quality-section">
+          <h3>Air Quality (Out of 5)</h3>
+          <div class="air-quality-container">
+            <div class="aqi-gauge">
+              <svg viewBox="0 0 120 120" width="120" height="120">
+                <circle
+                  class="gauge-bg"
+                  cx="60"
+                  cy="60"
+                  r="54"
+                  stroke="#e0e0e0"
+                  stroke-width="12"
+                  fill="none"
+                />
+                <circle
+                  class="gauge-fill"
+                  cx="60"
+                  cy="60"
+                  r="54"
+                  stroke="url(#gradient)"
+                  stroke-width="12"
+                  fill="none"
+                  stroke-dasharray="339.292"
+                  stroke-dashoffset="339.292"
+                  transform="rotate(-90 60 60)"
+                />
+                <text
+                  id="aqiNumber"
+                  x="60"
+                  y="65"
+                  text-anchor="middle"
+                  font-size="24"
+                  font-family="Poppins, sans-serif"
+                  fill="#ffffff"
+                  font-weight="600"
+                  dominant-baseline="middle"
+                >
+                  --
+                </text>
+              </svg>
+            </div>
+            <div class="aqi-info">
+              <h4 class="aqi-status">Loading...</h4>
+              <p class="aqi-description">Fetching air quality data...</p>
+            </div>
+          </div>
+        </section>
+        <!-- Hotel Recommendations Section -->
+        <section class="hotel-section">
+          <div class="section-header">
+            <h3>Hotel Recommendations</h3>
+            <div class="section-actions">
+              <select id="hotelSort" aria-label="Sort hotels by">
+                <option value="recommended">Recommended</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+              </select>
+            </div>
+          </div>
+          <div class="hotel-container" id="hotelContainer">
+            <div class="loading-hotels" id="hotelLoading">
+              <div class="scanner">
+                <div class="scanner-beam"></div>
+              </div>
+              <p>Finding best hotels in this area...</p>
+            </div>
+            <div
+              class="hotel-results"
+              id="hotelResults"
+              style="display: none"
+            ></div>
+          </div>
+        </section>
+        <!-- Local News Section -->
+        <section class="news-section">
+          <div class="section-header">
+            <h3>Local News</h3>
+            <button
+              id="refreshNews"
+              class="icon-button"
+              aria-label="Refresh local news"
+            >
+              <span class="icon refresh-icon"></span>
+            </button>
+          </div>
+          <div class="news-container" id="newsContainer">
+            <div class="loading-news">
+              <div class="scanner">
+                <div class="scanner-beam"></div>
+              </div>
+              <p>Loading local news...</p>
+            </div>
+          </div>
+        </section>
+        <!-- Activities Section -->
+        <section class="activities-section">
+          <h3>Things to Do</h3>
+          <div class="activities-container" id="activitiesContainer"></div>
+        </section>
+      </main>
+      <!-- Share and Save Section -->
+      <div class="share-save-section">
+        <button
+          id="shareWeather"
+          class="action-button"
+          aria-label="Share current weather"
+        >
+          <span class="icon share-weather-icon"></span> Share
+        </button>
+        <button
+          id="saveLocation"
+          class="action-button"
+          aria-label="Save current location"
+        >
+          <span class="icon bookmark-icon"></span> Save Location
+        </button>
+        <button
+          id="downloadReport"
+          class="action-button"
+          aria-label="Download weather report"
+        >
+          <span class="icon download-file-icon"></span> Download Report
+        </button>
+        <button
+          id="openPwaGuide"
+          class="action-button highlight-action"
+          aria-label="Open installation guide"
+        >
+          <span class="icon app-icon"></span> Install App
+        </button>
+      </div>
+      <!-- Saved Locations -->
+      <section class="saved-locations" id="savedLocationsSection">
+        <h3>Saved Locations</h3>
+        <div class="saved-locations-container" id="savedLocationsContainer">
+          <p class="no-saved-locations">You haven't saved any locations yet.</p>
+        </div>
+      </section>
+      <!-- Footer -->
+      <footer>
+        <div class="footer-top">
+          <div class="footer-column">
+            <h4>WeatherNow</h4>
+            <p>
+              Get real-time weather updates, forecasts, and local information.
+            </p>
+            <div class="social-links">
+              <a href="#" aria-label="Follow us on Facebook"
+                ><span class="icon facebook-icon"></span
+              ></a>
+              <a href="#" aria-label="Follow us on Twitter"
+                ><span class="icon twitter-icon"></span
+              ></a>
+              <a href="#" aria-label="Follow us on Instagram"
+                ><span class="icon instagram-icon"></span
+              ></a>
+            </div>
+          </div>
+          <div class="footer-column">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+              <li><a href="#">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4>Subscribe</h4>
+            <p>Get weather alerts for your favorite locations.</p>
+            <div class="subscribe-form">
+              <input
+                type="email"
+                placeholder="Your email address"
+                id="subscribeEmail"
+                aria-label="Enter your email address"
+              />
+              <button
+                id="subscribeBtn"
+                aria-label="Subscribe to weather alerts"
+              >
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            © 2025 WeatherNow. All data provided by OpenWeather and our
+            partners.
+          </p>
+        </div>
+      </footer>
+    </div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loader"></div>
+      <p>Analyzing Weather Patterns</p>
+    </div>
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage">
+      <span class="icon error-icon"></span>
+      <p id="errorText">Something went wrong. Please try again.</p>
+      <button id="dismissError" aria-label="Dismiss error message">
+        Dismiss
+      </button>
+    </div>
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+      <span class="icon success-icon"></span>
+      <p id="successText">Operation completed successfully.</p>
+      <button id="dismissSuccess" aria-label="Dismiss success message">
+        Dismiss
+      </button>
+    </div>
+    <!-- Share Modal -->
+    <div class="modal" id="shareModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Share Weather</h3>
+          <button
+            class="close-modal"
+            id="closeShareModal"
+            aria-label="Close share modal"
+          >
+            <span class="icon close-share-icon"></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Share current weather for <span id="shareCity">this location</span>:
+          </p>
+          <div class="share-options">
+            <button
+              class="share-option"
+              data-platform="facebook"
+              aria-label="Share on Facebook"
+            >
+              <span class="icon share-facebook-icon"></span> Facebook
+            </button>
+            <button
+              class="share-option"
+              data-platform="twitter"
+              aria-label="Share on Twitter"
+            >
+              <span class="icon share-twitter-icon"></span> Twitter
+            </button>
+            <button
+              class="share-option"
+              data-platform="whatsapp"
+              aria-label="Share on WhatsApp"
+            >
+              <span class="icon share-whatsapp-icon"></span> WhatsApp
+            </button>
+            <button
+              class="share-option"
+              data-platform="email"
+              aria-label="Share via Email"
+            >
+              <span class="icon share-email-icon"></span> Email
+            </button>
+          </div>
+          <div class="share-link-container">
+            <input
+              type="text"
+              id="shareLink"
+              readonly
+              aria-label="Shared link"
+            />
+            <button id="copyShareLink" aria-label="Copy shared link">
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="icons.js" defer></script>
+    <script src="scripts.js" defer></script>
+    <script src="pwa.js" defer></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpZNtyYgXDDqcGFM52R9KNFyHBN2BwlFM&libraries=places&callback=initAutocomplete"
+      defer
+    ></script>
+    <!-- Added noscript fallback -->
+    <noscript>
+      <p>Please enable JavaScript to use WeatherNow.</p>
+    </noscript>
+  </body>
+</html>
