@@ -1,6 +1,20 @@
 const GEOAPIFY_API_KEY = "fc54a5144b00401088bcde5b7fd2b9eb";
 const PEXELS_API_KEY =
   "d4G3jdOaLNjowMn2zZA9saCVFPFGKqIGbzpqiRjnGNxg9mBXxLh45k9Z";
+const EXCHANGE_RATE_API_KEY = "f2402ee75174f0e305c0b0ec"; // Your ExchangeRate-API key
+
+async function getExchangeRate(fromCurrency, toCurrency) {
+  try {
+    const response = await fetch(
+      `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/${fromCurrency}`
+    );
+    const data = await response.json();
+    return data.conversion_rates[toCurrency];
+  } catch (error) {
+    console.error("Error fetching exchange rate:", error);
+    return 83.5; // Fallback rate (USD to INR as of March 2025, approx.)
+  }
+}
 
 async function getHotels(city) {
   const hotelContainer = document.getElementById("hotelContainer");
@@ -25,11 +39,20 @@ async function getHotels(city) {
     if (!hotelsResponse.ok) throw new Error("Failed to fetch hotels");
     const hotelsData = await hotelsResponse.json();
 
+    // Get exchange rate from USD to INR
+    const exchangeRate = await getExchangeRate("USD", "INR");
+
     const hotels = await Promise.all(
       hotelsData.features.map(async (feature) => {
         const hotelName = feature.properties.name || "Unnamed Hotel";
         const query = `${hotelName} ${city}`;
         const imageUrl = await getHotelImage(query, city);
+
+        // Handle price: Use Geoapify price if available, else default to $100 and convert to INR
+        let priceInUSD = feature.properties.price
+          ? parseFloat(feature.properties.price.replace("$", ""))
+          : 100; // Default to 100 USD if no price
+        let priceInINR = Math.round(priceInUSD * exchangeRate);
 
         return {
           id:
@@ -37,10 +60,10 @@ async function getHotels(city) {
             `hotel-${Math.random().toString(36).substr(2, 9)}`,
           name: hotelName,
           location: feature.properties.address_line2 || `${city}`,
-          city: city, // Store city for the redirect
+          city: city,
           rating: feature.properties.rating || 4.0,
           reviewCount: feature.properties.review_count || 100,
-          price: feature.properties.price || "$100",
+          price: `₹${priceInINR}`, // Display in INR
           image: imageUrl,
           badge: feature.properties.badge || null,
           features: [
@@ -159,7 +182,6 @@ function updateHotelsUI(hotels) {
     hotelContainer.appendChild(hotelItem);
   });
 
-  // Add event listeners to all "Book Now" buttons
   document.querySelectorAll(".book-now").forEach((button) => {
     button.addEventListener("click", () => {
       const name = button.getAttribute("data-name");
@@ -184,4 +206,18 @@ function getStarsHTML(rating) {
     }
   }
   return starsHTML;
+}
+
+// Export getHotels if using modules (optional, depending on your setup)
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    getHotels,
+    getHotelImage,
+    updateHotelsUI,
+    getStarsHTML,
+    getExchangeRate,
+  };
+} else {
+  // Make getHotels globally available if not using modules
+  window.getHotels = getHotels;
 }
