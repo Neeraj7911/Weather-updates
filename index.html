@@ -353,6 +353,32 @@
             </div>
           </div>
         </section>
+        <!-- Moon Phase Section -->
+        <section class="moon-phase-section">
+          <h3>Moon Phases (Next 7 Days)</h3>
+          <div class="moon-phase-container" id="moonPhaseContainer"></div>
+        </section>
+        <!-- Local News Section -->
+        <section class="news-section">
+          <div class="section-header">
+            <h3>Local News</h3>
+            <button
+              id="refreshNews"
+              class="icon-button"
+              aria-label="Refresh local news"
+            >
+              <span class="icon refresh-icon"></span>
+            </button>
+          </div>
+          <div class="news-container" id="newsContainer">
+            <div class="loading-news">
+              <div class="scanner">
+                <div class="scanner-beam"></div>
+              </div>
+              <p>Loading local news...</p>
+            </div>
+          </div>
+        </section>
         <!-- Hotel Recommendations Section -->
         <section class="hotel-section">
           <div class="section-header">
@@ -378,27 +404,6 @@
               id="hotelResults"
               style="display: none"
             ></div>
-          </div>
-        </section>
-        <!-- Local News Section -->
-        <section class="news-section">
-          <div class="section-header">
-            <h3>Local News</h3>
-            <button
-              id="refreshNews"
-              class="icon-button"
-              aria-label="Refresh local news"
-            >
-              <span class="icon refresh-icon"></span>
-            </button>
-          </div>
-          <div class="news-container" id="newsContainer">
-            <div class="loading-news">
-              <div class="scanner">
-                <div class="scanner-beam"></div>
-              </div>
-              <p>Loading local news...</p>
-            </div>
           </div>
         </section>
         <!-- Activities Section -->
@@ -588,6 +593,8 @@
         </div>
       </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+    <script src="svg.js"></script>
     <script src="icons.js"></script>
     <script src="main.js"></script>
     <script src="hotels.js"></script>

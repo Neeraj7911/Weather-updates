@@ -1,3 +1,4 @@
+// main.js
 // API Keys
 const weatherApiKey = "9afd12a6a2414ab9d129d33d2f3726be";
 const weatherApiUrl =
@@ -54,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addSVGGradient();
   loadSavedTheme();
   loadSavedLocations();
+  displayMoonPhases(); // Initial moon phase display
 
   // Handle shared city from URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -374,6 +376,7 @@ function updateWeatherUI(data) {
   weatherDescription.textContent = data.weather[0].description;
   updateWeatherIcon(weatherCondition);
   updateWeatherTheme(weatherCondition);
+  displayMoonPhases(); // Update moon phases when weather updates
 }
 
 function updateForecastUI(forecastList) {
@@ -403,6 +406,93 @@ function updateForecastUI(forecastList) {
     `;
     forecastContainer.appendChild(forecastItem);
   });
+}
+
+// Moon Phase Calculation using SunCalc
+function calculateMoonPhase(date) {
+  if (typeof SunCalc === "undefined") {
+    console.error("SunCalc library not loaded. Please include suncalc.min.js.");
+    return { name: "Unknown", key: "unknown" };
+  }
+
+  const moonData = SunCalc.getMoonIllumination(date);
+  const phaseFraction = moonData.phase;
+  console.log(`Date: ${date.toDateString()}, Phase Fraction: ${phaseFraction}`);
+
+  // Refined phase ranges based on SunCalc's 0-1 cycle
+  const phases = [
+    { name: "New Moon", key: "new-moon", min: 0, max: 0.05 }, // 0–5%
+    { name: "Waxing Crescent", key: "waxing-crescent", min: 0.05, max: 0.45 }, // 5–45%
+    { name: "First Quarter", key: "first-quarter", min: 0.45, max: 0.55 }, // 45–55%
+    { name: "Waxing Gibbous", key: "waxing-gibbous", min: 0.55, max: 0.95 }, // 55–95%
+    { name: "Full Moon", key: "full-moon", min: 0.95, max: 1.0 }, // 95–100%
+    { name: "Waning Gibbous", key: "waning-gibbous", min: 0.55, max: 0.95 }, // 55–95% (waning)
+    { name: "Last Quarter", key: "last-quarter", min: 0.45, max: 0.55 }, // 45–55% (waning)
+    { name: "Waning Crescent", key: "waning-crescent", min: 0.05, max: 0.45 }, // 5–45% (waning)
+  ];
+
+  // Determine waxing or waning using the angle
+  const moonPosition = SunCalc.getMoonPosition(date, 0, 0);
+  const isWaxing = moonData.angle > 0;
+
+  // Filter phases based on waxing/waning
+  let applicablePhases = phases.filter((phase) => {
+    if (phase.name.includes("Waxing")) return isWaxing;
+    if (phase.name.includes("Waning")) return !isWaxing;
+    return true;
+  });
+
+  // Find the matching phase
+  for (const phase of applicablePhases) {
+    if (phaseFraction >= phase.min && phaseFraction < phase.max) {
+      if (phase.name === "First Quarter" && !isWaxing) continue;
+      if (phase.name === "Last Quarter" && isWaxing) continue;
+      return phase;
+    }
+  }
+
+  if (phaseFraction >= 0.95) {
+    return phases[0]; // New Moon
+  }
+
+  return phases[0]; // Fallback
+}
+
+function displayMoonPhases() {
+  const moonPhaseContainer = document.getElementById("moonPhaseContainer");
+  if (!moonPhaseContainer) {
+    console.error("Moon phase container not found in DOM");
+    return;
+  }
+  moonPhaseContainer.innerHTML = "";
+
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const phase = calculateMoonPhase(date);
+
+    const moonItem = document.createElement("div");
+    moonItem.className = "moon-phase-item";
+    moonItem.innerHTML = `
+      <p>${date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      })}</p>
+      <div class="moon-icon" data-phase="${phase.key}"></div>
+      <p>${phase.name}</p>
+    `;
+    moonPhaseContainer.appendChild(moonItem);
+
+    // Set the SVG for this moon phase
+    const moonIcon = moonItem.querySelector(".moon-icon");
+    if (window.setSVG && window.moonSVGs && window.moonSVGs[phase.key]) {
+      window.setSVG([moonIcon], window.moonSVGs[phase.key]);
+    } else {
+      console.error(`SVG not found for phase: ${phase.key}`);
+    }
+  }
 }
 
 // Shared Helper Functions
@@ -574,8 +664,8 @@ function saveLocation(weatherData) {
   };
   savedLocations.push(newLocation);
   localStorage.setItem("savedLocations", JSON.stringify(savedLocations));
-  renderSavedLocations(); // Update UI after saving
-  showError("Location saved successfully!"); // Feedback
+  renderSavedLocations();
+  showError("Location saved successfully!");
 }
 
 function loadSavedLocations() {
@@ -603,57 +693,11 @@ function renderSavedLocations(
       <button class="load-location">Load</button>
       <button class="remove-location">Remove</button>
     `;
-    // Load button functionality
     locationDiv
       .querySelector(".load-location")
       .addEventListener("click", () => {
         checkWeather(location.name);
       });
-    // Remove button functionality
-    locationDiv
-      .querySelector(".remove-location")
-      .addEventListener("click", () => {
-        const updatedLocations = locations.filter(
-          (loc) => loc.name !== location.name
-        );
-        localStorage.setItem(
-          "savedLocations",
-          JSON.stringify(updatedLocations)
-        );
-        renderSavedLocations(updatedLocations); // Re-render after removal
-      });
-    savedLocationsContainer.appendChild(locationDiv);
-  });
-}
-
-function loadSavedLocations() {
-  const savedLocations =
-    JSON.parse(localStorage.getItem("savedLocations")) || [];
-  renderSavedLocations(savedLocations);
-}
-
-function renderSavedLocations(
-  locations = JSON.parse(localStorage.getItem("savedLocations")) || []
-) {
-  savedLocationsContainer.innerHTML = "";
-  if (locations.length === 0) {
-    savedLocationsContainer.innerHTML = "<p>No saved locations yet.</p>";
-    return;
-  }
-  locations.forEach((location) => {
-    const locationDiv = document.createElement("div");
-    locationDiv.className = "saved-location";
-    locationDiv.innerHTML = `
-      <span>${location.name} (${formatTemperature(location.temp)}) - ${
-      location.weather
-    }</span>
-      <small>${location.time}</small>
-      <button class="load-location">Load</button>
-      <button class="remove-location">Remove</button>
-    `;
-    locationDiv
-      .querySelector(".load-location")
-      .addEventListener("click", () => checkWeather(location.name));
     locationDiv
       .querySelector(".remove-location")
       .addEventListener("click", () => {

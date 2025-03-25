@@ -1966,3 +1966,43 @@ footer {
     justify-content: center;
   }
 }
+
+.moon-phase-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+}
+
+.moon-phase-section h3 {
+  margin-bottom: 15px;
+  color: #ffffff;
+  font-family: "Orbitron", sans-serif;
+}
+
+.moon-phase-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.moon-phase-item {
+  text-align: center;
+  color: #ffffff;
+  font-family: "Poppins", sans-serif;
+  flex: 1;
+  min-width: 100px;
+}
+
+.moon-phase-item p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.moon-icon {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}

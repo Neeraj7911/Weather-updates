@@ -4,7 +4,8 @@ const urlsToCache = [
   "/index.html",
   "/main.js",
   "/hotel.js",
-  "/styles.css", // Ensure this matches your actual CSS file name
+  "/styles.css",
+  "/styles1.css", // Ensure this matches your actual CSS file name
   // Add other assets you want to cache
 ];
 
