@@ -1969,9 +1969,8 @@ footer {
 
 .moon-phase-section {
   display: flex;
-  flex-direction: row; /* Stacks h3 and container vertically */
+  flex-direction: column; /* Stacks h3 and container vertically */
   align-items: center;
-  width: max-content; /* Adjusts to content width */
   margin: 20px 0;
   padding: 20px;
   background: rgba(255, 255, 255, 0.1);
