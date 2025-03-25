@@ -2017,3 +2017,29 @@ footer {
   height: 50px;
   object-fit: contain;
 }
+.moon-phase-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+  max-width: 1200px; /* Added to constrain width */
+  width: 100%;
+  box-sizing: border-box; /* Added to include padding in width */
+}
+
+.moon-phase-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center; /* Changed from space-between to center items */
+  gap: 50px; /* Increased from 10px for better spacing */
+  width: auto; /* Changed from 100% to size based on content */
+  max-width: 100%; /* Added to prevent overflow */
+  overflow-x: auto;
+  padding: 10px; /* Added for aesthetics */
+  white-space: normal; /* Changed from nowrap, redundant with flex-wrap */
+}
