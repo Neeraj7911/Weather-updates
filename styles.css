@@ -1970,9 +1970,9 @@ footer {
 
 .moon-phase-section {
   display: flex;
-  flex-direction: column; /* Stacks h3 and container vertically */
+  flex-direction: column;
   align-items: center;
-  width: max-content; /* Adjusts to content width */
+  width: max-content;
   margin: 20px 0;
   padding: 20px;
   background: rgba(255, 255, 255, 0.1);
@@ -1988,25 +1988,17 @@ footer {
 
 .moon-phase-container {
   display: flex;
-  flex-direction: row; /* Horizontal alignment */
-  flex-wrap: nowrap; /* Prevents wrapping to new lines */
-  justify-content: space-between; /* Even spacing between items */
-  gap: 10px; /* Space between items */
-  overflow-x: auto; /* Scroll horizontally if overflow */
-  width: 100%; /* Full width of parent */
-  white-space: nowrap; /* Ensures items stay in one line */
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .moon-phase-item {
-  display: flex;
-  flex-direction: column; /* Stack date, icon, phase vertically within item */
-  align-items: center; /* Center content horizontally */
   text-align: center;
   color: #ffffff;
   font-family: "Poppins", sans-serif;
-  flex: 0 0 auto; /* Fixed width, no stretching */
-  min-width: 100px; /* Minimum width for each item */
-  width: 100px; /* Fixed width to ensure consistency */
+  flex: 1;
+  min-width: 100px;
 }
 
 .moon-phase-item p {
