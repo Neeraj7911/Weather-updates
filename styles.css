@@ -579,15 +579,13 @@ main {
     grid-column: 1 / 2;
     grid-row: 1 / 3;
   }
+  .forecast-section {
+    grid-column: 2 / 3;
+  }
   .air-quality-section {
     grid-column: 2 / 3;
-    grid-row: 1 / 2;
   }
   .moon-phase-section {
-    grid-column: 1 / 3;
-    grid-row: 3 / 4;
-  }
-  .forecast-section {
     grid-column: 1 / 3;
   }
   .hotel-section,
@@ -605,16 +603,14 @@ main {
     grid-column: 1 / 2;
     grid-row: 1 / 3;
   }
+  .forecast-section {
+    grid-column: 2 / 4;
+  }
   .air-quality-section {
     grid-column: 2 / 3;
-    grid-row: 1 / 2;
   }
   .moon-phase-section {
-    grid-column: 1 / 4;
-    grid-row: 3 / 4;
-  }
-  .forecast-section {
-    grid-column: 1 / 4;
+    grid-column: 3 / 4;
   }
   .hotel-section,
   .news-section,
@@ -1001,31 +997,14 @@ main {
 /* Moon Phase Section */
 .moon-phase-container {
   display: flex;
-  overflow-x: auto;
+  flex-wrap: wrap;
   gap: 16px;
-  padding-bottom: 8px;
-  scrollbar-width: thin;
-}
-
-.moon-phase-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.moon-phase-container::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-.moon-phase-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  justify-content: center;
 }
 
 .moon-phase-item {
+  text-align: center;
   min-width: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: 12px;
   background-color: rgba(67, 97, 238, 0.05);
   border-radius: 12px;
@@ -1036,20 +1015,18 @@ main {
 .moon-phase-item:hover {
   background-color: rgba(67, 97, 238, 0.1);
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .moon-icon {
   width: 50px;
   height: 50px;
   object-fit: contain;
-  margin: 8px 0;
+  margin: 8px auto;
 }
 
 .moon-phase-item p {
   font-size: 14px;
   margin: 4px 0;
-  text-align: center;
 }
 
 /* Hotel Section Styles */
@@ -1971,6 +1948,9 @@ footer {
 @media (max-width: 1024px) {
   .hotel-container {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .moon-phase-container {
+    justify-content: flex-start;
   }
 }
 
